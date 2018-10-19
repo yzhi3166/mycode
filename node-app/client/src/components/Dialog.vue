@@ -1,6 +1,6 @@
 <template>
     <div class="dialog">
-        <el-dialog title="添加资金信息" :visible.sync="dialog.show" :close-on-click-modal="false" :close-on-press-escape="false" :append-to-body="false">
+        <el-dialog :title="dialog.title" :visible.sync="dialog.show" :close-on-click-modal="false" :close-on-press-escape="false" :append-to-body="false">
             <div class="form">
                 <el-form ref="form" :model="formData" :rules="form_rules" label-width="120px" style="margin:10px;width:auto;">
                     <el-form-item label="收支类型:">
@@ -37,52 +37,40 @@ export default {
   name: "dialog",
   data() {
     return {
-      formData: {
-        type: "",
-        describe: "",
-        income: "",
-        expend: "",
-        cash: "",
-        remark: "",
-        id: ""
-      },
       format_type_list: ["提现", "充值", "优惠卷"],
-      form_rules:{
-          describe:[
-              {required:true,message:"收支描述不能为空",trigger:'blur'}
-          ],
-          income:[
-              {required:true,message:"收入不能为空",trigger:'blur'}
-          ],
-          expend:[
-              {required:true,message:"支出不能为空",trigger:'blur'}
-          ],
-          cash:[
-              {required:true,message:"账户现金不能为空",trigger:'blur'}
-          ]
+      form_rules: {
+        describe: [
+          { required: true, message: "收支描述不能为空", trigger: "blur" }
+        ],
+        income: [{ required: true, message: "收入不能为空", trigger: "blur" }],
+        expend: [{ required: true, message: "支出不能为空", trigger: "blur" }],
+        cash: [{ required: true, message: "账户现金不能为空", trigger: "blur" }]
       }
     };
   },
   props: {
-    dialog: Object
+    dialog: {},
+    formData: {}
   },
-  methods:{
-      onSubmit(form){
-          this.$refs[form].validate(valid=>{
-              if(valid){
-                  this.$axios.post("/api/profiles/add",this.formData)
-                  .then(res=>{
-                      this.$message({
-                          message:"数据添加成功",
-                          type:"success"
-                      })
-                  })
-                  //隐藏dialog
-                  this.dialog.show=false;
-                  this.$emit("update")
-              }
-          })
-      }
+  methods: {
+    onSubmit(form) {
+      this.$refs[form].validate(valid => {
+        if (valid) {
+          const url =
+            this.dialog.option === "add" ? "add" : `edit/${this.formData.id}`;
+
+          this.$axios.post(`/api/profiles/${url}`, this.formData).then(res => {
+            this.$message({
+              message: "数据更新成功",
+              type: "success"
+            });
+            //隐藏dialog
+            this.dialog.show = false;
+            this.$emit("update");
+          });
+        }
+      });
+    }
   }
 };
 </script>
